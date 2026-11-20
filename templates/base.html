@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} — {{ project_name }}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1rem; color: #222; }
+        nav a { margin-right: 1rem; }
+        h1 { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'core:home' %}">Головна</a>
+        <a href="{% url 'core:about' %}">Про проєкт</a>
+    </nav>
+    <h1>{{ title }}</h1>
+    {% block content %}{% endblock %}
+</body>
+</html>
