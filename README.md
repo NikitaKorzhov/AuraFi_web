@@ -5,6 +5,10 @@ started as a Python console app (SQLite → PostgreSQL → SQLAlchemy ORM) and i
 now growing a Django front end, lesson by lesson, following the course's
 Django block (lessons 37-49).
 
+This is a **web project**: the goal is to reimplement the full AuraFi
+functionality (users, categories, transactions, budgets, reports) as a
+Django web application, not just a thin UI bolted on top of the console app.
+
 This is a **separate project on purpose**, not a folder inside AuraFi itself:
 Django owns its own models and migrations, and running two different ORMs
 (SQLAlchemy and Django's) against the same live tables would mean two
