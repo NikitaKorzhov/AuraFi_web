@@ -89,3 +89,54 @@ def budgets_list(request):
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/budgets_list.html", context)
+
+
+# --- Рівень 2: Розширена функціональність ---
+
+def transactions_by_category(request, category):
+    filtered = [t for t in TRANSACTIONS if t["category"].lower() == category.lower()]
+    total = sum(t["amount"] for t in filtered)
+
+    context = {
+        "title": f"Категорія: {category}",
+        "transactions": filtered,
+        "total": total,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/transactions_list.html", context)
+
+
+def monthly_report(request, month):
+    if not 1 <= month <= 12:
+        return HttpResponse("Невірний номер місяця (1-12)", status=404)
+
+    month_prefix = f"-{month:02d}-"
+    monthly = [t for t in TRANSACTIONS if month_prefix in t["date"]]
+    income_total = sum(t["amount"] for t in monthly if t["type"] == "income")
+    expense_total = sum(t["amount"] for t in monthly if t["type"] == "expense")
+
+    context = {
+        "title": f"Звіт за місяць №{month}",
+        "month": month,
+        "transactions": monthly,
+        "income_total": income_total,
+        "expense_total": expense_total,
+        "balance": income_total - expense_total,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/report.html", context)
+
+
+def top_expenses(request):
+    expenses = sorted(
+        (t for t in TRANSACTIONS if t["type"] == "expense"),
+        key=lambda t: t["amount"],
+        reverse=True,
+    )[:5]
+
+    context = {
+        "title": "Топ-5 витрат",
+        "transactions": expenses,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/transactions_list.html", context)

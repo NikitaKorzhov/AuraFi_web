@@ -17,7 +17,7 @@ the Django-models lesson, this project will define its own Expense Tracker
 schema (users/categories/transactions/budgets) — the same domain as AuraFi,
 modeled fresh through Django ORM, with its own database.
 
-## Current state — Homework 37 + Homework 38 (Рівень 1)
+## Current state — Homework 37 + Homework 38 (Рівень 1 + Рівень 2)
 
 Homework 37 added the `core` app (two static pages):
 
@@ -50,9 +50,22 @@ unchanged underneath that prefix. An unknown transaction id
 Both apps extend the same shared `templates/base.html`, whose nav now links
 to all three areas (Головна / Про проєкт / Трекер).
 
+Рівень 2 (просунутий) adds 3 more routes, all with typed dynamic parameters
+and real 404 handling:
+
+| Route | View | Template | Notes |
+|---|---|---|---|
+| `/app/transactions/category/<str:category>/` | `transactions_by_category` | `transactions_list.html` | case-insensitive match; empty list if no match |
+| `/app/reports/<int:month>/` | `monthly_report` | `report.html` | income/expense/balance totals for that month; 404 if `month` not in 1-12 |
+| `/app/top-expenses/` | `top_expenses` | `transactions_list.html` | top 5 expenses by amount, descending |
+
+The budgets page links each category straight into its filtered transaction
+list, and the tracker home page links to the top-expenses and a November
+monthly report.
+
 No models, no database work, no auth yet — hardcoded data is deliberate at
-this level (Рівень 1); real models start at lesson 40, and Рівень 2/3 of
-Homework 38 (filtering routes, dashboard, etc.) are not yet implemented.
+this level; real models start at lesson 40. Рівень 3 (bonus — CSS styling,
+comments, dashboard) is not yet implemented.
 
 ## Setup
 
@@ -76,6 +89,9 @@ Then open:
 - http://127.0.0.1:8000/app/income/ — income only
 - http://127.0.0.1:8000/app/expenses/ — expenses only
 - http://127.0.0.1:8000/app/budgets/ — budgets
+- http://127.0.0.1:8000/app/transactions/category/Food/ — filter by category
+- http://127.0.0.1:8000/app/reports/11/ — monthly report (month 1-12)
+- http://127.0.0.1:8000/app/top-expenses/ — top 5 expenses
 
 ## Project layout
 
@@ -86,7 +102,7 @@ AuraFi_web/
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/core/
-├── transactions/        # Homework 38 (Рівень 1) — expense tracker views
+├── transactions/        # Homework 38 (Рівень 1+2) — expense tracker views
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/transactions/

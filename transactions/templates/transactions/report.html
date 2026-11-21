@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Доходи: {{ income_total }} грн</p>
+    <p>Витрати: {{ expense_total }} грн</p>
+    <p><strong>Баланс: {{ balance }} грн</strong></p>
+
+    {% if transactions %}
+        <table border="1">
+            <tr>
+                <th>Дата</th>
+                <th>Категорія</th>
+                <th>Тип</th>
+                <th>Сума</th>
+                <th>Опис</th>
+            </tr>
+            {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{{ t.category }}</td>
+                    <td>{{ t.type }}</td>
+                    <td>{{ t.amount }} грн</td>
+                    <td>{{ t.description }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Немає транзакцій за цей місяць.</p>
+    {% endif %}
+
+    <p><a href="{% url 'transactions:home' %}">Назад на головну</a></p>
+{% endblock %}

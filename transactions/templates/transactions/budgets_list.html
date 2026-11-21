@@ -4,7 +4,10 @@
     {% if budgets %}
         <ul>
             {% for budget in budgets %}
-                <li>{{ budget.category }}: {{ budget.monthly_limit }} грн/місяць</li>
+                <li>
+                    {{ budget.category }}: {{ budget.monthly_limit }} грн/місяць
+                    (<a href="{% url 'transactions:transactions_by_category' budget.category %}">транзакції</a>)
+                </li>
             {% endfor %}
         </ul>
     {% else %}
