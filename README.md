@@ -17,7 +17,7 @@ the Django-models lesson, this project will define its own Expense Tracker
 schema (users/categories/transactions/budgets) — the same domain as AuraFi,
 modeled fresh through Django ORM, with its own database.
 
-## Current state — Homework 37 + Homework 38 (Рівень 1 + Рівень 2)
+## Current state — Homework 37 + Homework 38 (Рівень 1 + Рівень 2 + Рівень 3)
 
 Homework 37 added the `core` app (two static pages):
 
@@ -63,9 +63,33 @@ The budgets page links each category straight into its filtered transaction
 list, and the tracker home page links to the top-expenses and a November
 monthly report.
 
+Рівень 3 (бонус) adds:
+
+| Route | View | Template | Notes |
+|---|---|---|---|
+| `/app/convert/` | `convert_currency` | `convert.html` | GET form, UAH ↔ USD ↔ EUR, hardcoded rates; sticky inputs, inline error on bad input |
+| `/app/expenses-chart/` | `expenses_chart` | `expenses_chart.html` | ASCII-art bar chart (`█`) of expenses by category, sorted descending |
+
+Plus a general UX/usability pass across the whole site (both apps, not just
+`transactions`):
+- **Light/dark theme toggle** — a button in the header, persisted in
+  `localStorage`, defaulting to the OS's `prefers-color-scheme` on first
+  visit; implemented with CSS custom properties in `templates/base.html` so
+  every page (including `core`'s) picks it up automatically, no per-page
+  work needed.
+- A persistent **sub-navigation bar** (`transactions/_subnav.html`, included
+  on every tracker page) to every tracker route, with the current page
+  highlighted — no more "back to home to get anywhere else".
+- Active-link highlighting in the main header nav too
+  (`request.resolver_match`), so you always know which app/page you're on.
+- Numbers formatted with thousands separators (`django.contrib.humanize`'s
+  `intcomma`) instead of raw digit strings.
+- A month-picker (1-12) on the report page instead of hand-editing the URL.
+- Responsive layout (viewport meta tag, wrapping nav, horizontally
+  scrollable tables on narrow screens) — usable on a phone, not just desktop.
+
 No models, no database work, no auth yet — hardcoded data is deliberate at
-this level; real models start at lesson 40. Рівень 3 (bonus — CSS styling,
-comments, dashboard) is not yet implemented.
+this level; real models start at lesson 40.
 
 ## Setup
 
@@ -92,6 +116,8 @@ Then open:
 - http://127.0.0.1:8000/app/transactions/category/Food/ — filter by category
 - http://127.0.0.1:8000/app/reports/11/ — monthly report (month 1-12)
 - http://127.0.0.1:8000/app/top-expenses/ — top 5 expenses
+- http://127.0.0.1:8000/app/convert/?amount=1000&from=UAH&to=USD — currency converter
+- http://127.0.0.1:8000/app/expenses-chart/ — ASCII expenses chart
 
 ## Project layout
 
@@ -102,10 +128,11 @@ AuraFi_web/
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/core/
-├── transactions/        # Homework 38 (Рівень 1+2) — expense tracker views
+├── transactions/        # Homework 38 (Рівень 1+2+3) — expense tracker views
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/transactions/
+│       └── _subnav.html  # shared sub-nav included on every tracker page
 ├── templates/
 │   └── base.html        # shared layout all page templates extend
 ├── manage.py

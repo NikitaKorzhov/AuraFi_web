@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>{{ text }}</p>
+    <p class="lead">{{ text }}</p>
+
+    <h2>What you can do</h2>
+    <ul class="feature-list">
+        {% for f in features %}
+            <li><strong>{{ f.title }}</strong> — {{ f.description }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><a class="button" href="{% url 'transactions:home' %}">Open the tracker →</a></p>
 {% endblock %}

@@ -1,21 +1,308 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }} — {{ project_name }}</title>
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem("aurafi-theme");
+                var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (e) {}
+        })();
+    </script>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1rem; color: #222; }
-        nav a { margin-right: 1rem; }
-        h1 { margin-bottom: 0.5rem; }
+        :root {
+            --bg: #fafafa;
+            --fg: #1a1a1a;
+            --muted: #666;
+            --accent: #2563eb;
+            --accent-fg: #ffffff;
+            --card-bg: #ffffff;
+            --border: #e2e2e2;
+            --row-hover: #f0f4ff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #121212;
+                --fg: #e8e8e8;
+                --muted: #a0a0a0;
+                --accent: #60a5fa;
+                --accent-fg: #0b1220;
+                --card-bg: #1c1c1e;
+                --border: #333333;
+                --row-hover: #26324a;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #121212;
+            --fg: #e8e8e8;
+            --muted: #a0a0a0;
+            --accent: #60a5fa;
+            --accent-fg: #0b1220;
+            --card-bg: #1c1c1e;
+            --border: #333333;
+            --row-hover: #26324a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        a { color: var(--accent); }
+
+        /* --- Top navbar: full-width, sticky, its own background --- */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+        .navbar-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 0.85rem 1.25rem;
+        }
+        .brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: var(--fg);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        nav.main {
+            display: flex;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+        nav.main a {
+            padding: 0.45rem 0.9rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--fg);
+            font-weight: 500;
+        }
+        nav.main a.active { background: var(--accent); color: var(--accent-fg); }
+        nav.main a:hover:not(.active) { background: var(--row-hover); }
+
+        .navbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+        #theme-toggle {
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--fg);
+            border-radius: 999px;
+            padding: 0.4rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        #theme-toggle:hover { border-color: var(--accent); }
+
+        /* --- Page content --- */
+        main {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 1.75rem 1rem 3rem;
+        }
+
+        h1 { margin: 0 0 1rem; font-size: 1.7rem; }
+        h2 { margin: 1.75rem 0 0.75rem; font-size: 1.2rem; }
+        h2:first-child { margin-top: 0; }
+
+        nav.subnav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        nav.subnav a {
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--fg);
+            font-size: 0.9rem;
+            background: var(--card-bg);
+        }
+        nav.subnav a.active {
+            background: var(--accent);
+            color: var(--accent-fg);
+            border-color: var(--accent);
+        }
+        nav.subnav a:hover:not(.active) { border-color: var(--accent); }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .lead { font-size: 1.1rem; color: var(--muted); margin-top: 0; }
+
+        .feature-list, .timeline { list-style: none; margin: 0; padding: 0; }
+        .feature-list li, .timeline li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .feature-list li:last-child, .timeline li:last-child { border-bottom: none; }
+        .feature-list li strong, .timeline li strong { color: var(--fg); }
+
+        .timeline { counter-reset: step; }
+        .timeline li { position: relative; padding-left: 2.4rem; }
+        .timeline li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0.65rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--accent-fg);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--accent-fg);
+            text-decoration: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        .button:hover { opacity: 0.9; }
+
+        .table-wrap { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+        th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+        th { color: var(--muted); font-weight: 600; }
+        tr:hover td { background: var(--row-hover); }
+
+        .muted { color: var(--muted); }
+        .muted a.active { font-weight: 700; text-decoration: underline; color: var(--fg); }
+
+        .chart-rows { display: flex; flex-direction: column; gap: 0.6rem; }
+        .chart-row {
+            display: grid;
+            grid-template-columns: 7rem 1fr auto;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .chart-label { font-weight: 500; }
+        .chart-bar {
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            color: var(--accent);
+            margin: 0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .chart-amount { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+
+        @media (max-width: 480px) {
+            .chart-row { grid-template-columns: 1fr; gap: 0.15rem; }
+        }
+
+        form.convert-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+        form.convert-form label { display: flex; flex-direction: column; font-size: 0.85rem; color: var(--muted); gap: 0.25rem; }
+        form.convert-form input, form.convert-form select {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--fg);
+            font-size: 1rem;
+        }
+        form.convert-form button {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent);
+            color: var(--accent-fg);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        form.convert-form button:hover { opacity: 0.9; }
+
+        .error { color: #dc2626; }
+        .result { font-size: 1.3rem; margin-top: 0.75rem; }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'core:home' %}">Головна</a>
-        <a href="{% url 'core:about' %}">Про проєкт</a>
-        <a href="{% url 'transactions:home' %}">Трекер</a>
-    </nav>
-    <h1>{{ title }}</h1>
-    {% block content %}{% endblock %}
+    <header class="navbar">
+        <div class="navbar-inner">
+            <a class="brand" href="{% url 'core:home' %}">💰 AuraFi</a>
+            <nav class="main">
+                <a href="{% url 'core:home' %}" class="{% if request.resolver_match.app_name == 'core' and request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'transactions:home' %}" class="{% if request.resolver_match.app_name == 'transactions' %}active{% endif %}">Tracker</a>
+                <a href="{% url 'core:about' %}" class="{% if request.resolver_match.app_name == 'core' and request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
+            </nav>
+            <div class="navbar-right">
+                <button id="theme-toggle" type="button" aria-label="Toggle theme">🌙 Dark mode</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>{{ title }}</h1>
+        {% block subnav %}{% endblock %}
+        <div class="card">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            var btn = document.getElementById("theme-toggle");
+
+            function applyLabel() {
+                var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+                btn.textContent = isDark ? "☀️ Light mode" : "🌙 Dark mode";
+            }
+
+            btn.addEventListener("click", function () {
+                var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+                document.documentElement.setAttribute("data-theme", next);
+                try { localStorage.setItem("aurafi-theme", next); } catch (e) {}
+                applyLabel();
+            });
+
+            applyLabel();
+        })();
+    </script>
 </body>
 </html>

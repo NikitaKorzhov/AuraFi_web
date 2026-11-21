@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>{{ text }}</p>
+    <p class="lead">{{ text }}</p>
+
+    <h2>Our story</h2>
+    <ol class="timeline">
+        {% for step in story %}
+            <li><strong>{{ step.title }}</strong> — {{ step.description }}</li>
+        {% endfor %}
+    </ol>
+
+    <h2>Why a dedicated experience</h2>
+    <p>{{ why_separate }}</p>
 {% endblock %}

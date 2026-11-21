@@ -1,34 +1,37 @@
 {% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
 
 {% block content %}
     {% if total is not None %}
-        <p>Разом: {{ total }} грн</p>
+        <p>Total: <strong>{{ total|intcomma }} UAH</strong></p>
     {% endif %}
 
     {% if transactions %}
-        <table border="1">
-            <tr>
-                <th>Дата</th>
-                <th>Категорія</th>
-                <th>Тип</th>
-                <th>Сума</th>
-                <th>Опис</th>
-                <th>Дія</th>
-            </tr>
-            {% for t in transactions %}
+        <div class="table-wrap">
+            <table>
                 <tr>
-                    <td>{{ t.date }}</td>
-                    <td>{{ t.category }}</td>
-                    <td>{{ t.type }}</td>
-                    <td>{{ t.amount }} грн</td>
-                    <td>{{ t.description }}</td>
-                    <td><a href="{% url 'transactions:transaction_detail' t.id %}">Переглянути</a></td>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Action</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.type }}</td>
+                        <td>{{ t.amount|intcomma }} UAH</td>
+                        <td>{{ t.description }}</td>
+                        <td><a href="{% url 'transactions:transaction_detail' t.id %}">View</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     {% else %}
-        <p>Немає транзакцій.</p>
+        <p class="muted">No transactions found.</p>
     {% endif %}
-
-    <p><a href="{% url 'transactions:home' %}">Назад на головну</a></p>
 {% endblock %}

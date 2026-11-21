@@ -14,4 +14,6 @@ urlpatterns = [
     path("transactions/category/<str:category>/", views.transactions_by_category, name="transactions_by_category"),
     path("reports/<int:month>/", views.monthly_report, name="monthly_report"),
     path("top-expenses/", views.top_expenses, name="top_expenses"),
+    path("convert/", views.convert_currency, name="convert"),
+    path("expenses-chart/", views.expenses_chart, name="expenses_chart"),
 ]

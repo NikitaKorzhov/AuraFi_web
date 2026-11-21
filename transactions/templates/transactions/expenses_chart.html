@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
+
+{% block content %}
+    {% if rows %}
+        <div class="chart-rows">
+            {% for row in rows %}
+                <div class="chart-row">
+                    <span class="chart-label">{{ row.category }}</span>
+                    <pre class="chart-bar">{{ row.bar }}</pre>
+                    <span class="chart-amount">{{ row.amount|intcomma }} UAH</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">No expenses to display.</p>
+    {% endif %}
+{% endblock %}

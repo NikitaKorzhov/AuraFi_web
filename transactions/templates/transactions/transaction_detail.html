@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
 
 {% block content %}
     <p><strong>ID:</strong> {{ transaction.id }}</p>
-    <p><strong>Дата:</strong> {{ transaction.date }}</p>
-    <p><strong>Категорія:</strong> {{ transaction.category }}</p>
-    <p><strong>Тип:</strong> {{ transaction.type }}</p>
-    <p><strong>Сума:</strong> {{ transaction.amount }} грн</p>
-    <p><strong>Опис:</strong> {{ transaction.description }}</p>
-
-    <p><a href="{% url 'transactions:transactions_list' %}">Назад до списку</a></p>
+    <p><strong>Date:</strong> {{ transaction.date }}</p>
+    <p><strong>Category:</strong> {{ transaction.category }}</p>
+    <p><strong>Type:</strong> {{ transaction.type }}</p>
+    <p><strong>Amount:</strong> {{ transaction.amount|intcomma }} UAH</p>
+    <p><strong>Description:</strong> {{ transaction.description }}</p>
 {% endblock %}

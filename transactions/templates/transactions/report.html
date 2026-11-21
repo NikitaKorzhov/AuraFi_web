@@ -1,32 +1,42 @@
 {% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
 
 {% block content %}
-    <p>Доходи: {{ income_total }} грн</p>
-    <p>Витрати: {{ expense_total }} грн</p>
-    <p><strong>Баланс: {{ balance }} грн</strong></p>
+    <p class="muted">
+        Month:
+        {% for m in month_range %}
+            <a href="{% url 'transactions:monthly_report' m %}"{% if m == month %} class="active"{% endif %}>{{ m }}</a>{% if not forloop.last %} ·{% endif %}
+        {% endfor %}
+    </p>
+
+    <p>Income: <strong>{{ income_total|intcomma }} UAH</strong></p>
+    <p>Expenses: <strong>{{ expense_total|intcomma }} UAH</strong></p>
+    <p>Balance: <strong>{{ balance|intcomma }} UAH</strong></p>
 
     {% if transactions %}
-        <table border="1">
-            <tr>
-                <th>Дата</th>
-                <th>Категорія</th>
-                <th>Тип</th>
-                <th>Сума</th>
-                <th>Опис</th>
-            </tr>
-            {% for t in transactions %}
+        <div class="table-wrap">
+            <table>
                 <tr>
-                    <td>{{ t.date }}</td>
-                    <td>{{ t.category }}</td>
-                    <td>{{ t.type }}</td>
-                    <td>{{ t.amount }} грн</td>
-                    <td>{{ t.description }}</td>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.type }}</td>
+                        <td>{{ t.amount|intcomma }} UAH</td>
+                        <td>{{ t.description }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     {% else %}
-        <p>Немає транзакцій за цей місяць.</p>
+        <p class="muted">No transactions for this month.</p>
     {% endif %}
-
-    <p><a href="{% url 'transactions:home' %}">Назад на головну</a></p>
 {% endblock %}

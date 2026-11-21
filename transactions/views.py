@@ -3,13 +3,11 @@ from django.http import HttpResponse
 
 PROJECT_NAME = "AuraFi"
 
-# Homework 38, Рівень 1: тимчасові дані на місці БД.
-# Django-моделі для цього домену з'являться на лекції 40.
 TRANSACTIONS = [
-    {"id": 1, "amount": 30000, "type": "income", "category": "Salary", "date": "2026-11-01", "description": "Зарплата за листопад"},
-    {"id": 2, "amount": 5000, "type": "expense", "category": "Food", "date": "2026-11-05", "description": "Продукти"},
-    {"id": 3, "amount": 3000, "type": "expense", "category": "Transport", "date": "2026-11-07", "description": "Бензин"},
-    {"id": 4, "amount": 15000, "type": "income", "category": "Freelance", "date": "2026-11-12", "description": "Проєкт для клієнта"},
+    {"id": 1, "amount": 30000, "type": "income", "category": "Salary", "date": "2026-11-01", "description": "November salary"},
+    {"id": 2, "amount": 5000, "type": "expense", "category": "Food", "date": "2026-11-05", "description": "Groceries"},
+    {"id": 3, "amount": 3000, "type": "expense", "category": "Transport", "date": "2026-11-07", "description": "Gas"},
+    {"id": 4, "amount": 15000, "type": "income", "category": "Freelance", "date": "2026-11-12", "description": "Client project"},
 ]
 
 BUDGETS = [
@@ -17,6 +15,12 @@ BUDGETS = [
     {"category": "Transport", "monthly_limit": 5000},
     {"category": "Entertainment", "monthly_limit": 3000},
 ]
+
+EXCHANGE_RATES = {
+    "UAH": 1.0,
+    "USD": 41.5,
+    "EUR": 43.8,
+}
 
 
 def home(request):
@@ -36,7 +40,7 @@ def home(request):
 
 def transactions_list(request):
     context = {
-        "title": "Мої транзакції",
+        "title": "Transactions",
         "transactions": TRANSACTIONS,
         "project_name": PROJECT_NAME,
     }
@@ -46,10 +50,10 @@ def transactions_list(request):
 def transaction_detail(request, transaction_id):
     transaction = next((t for t in TRANSACTIONS if t["id"] == transaction_id), None)
     if transaction is None:
-        return HttpResponse("Транзакція не знайдена", status=404)
+        return HttpResponse("Transaction not found", status=404)
 
     context = {
-        "title": "Деталі транзакції",
+        "title": "Transaction details",
         "transaction": transaction,
         "project_name": PROJECT_NAME,
     }
@@ -61,7 +65,7 @@ def income_list(request):
     total = sum(t["amount"] for t in income_transactions)
 
     context = {
-        "title": "Доходи",
+        "title": "Income",
         "transactions": income_transactions,
         "total": total,
         "project_name": PROJECT_NAME,
@@ -74,7 +78,7 @@ def expense_list(request):
     total = sum(t["amount"] for t in expense_transactions)
 
     context = {
-        "title": "Витрати",
+        "title": "Expenses",
         "transactions": expense_transactions,
         "total": total,
         "project_name": PROJECT_NAME,
@@ -84,21 +88,19 @@ def expense_list(request):
 
 def budgets_list(request):
     context = {
-        "title": "Бюджети",
+        "title": "Budgets",
         "budgets": BUDGETS,
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/budgets_list.html", context)
 
 
-# --- Рівень 2: Розширена функціональність ---
-
 def transactions_by_category(request, category):
     filtered = [t for t in TRANSACTIONS if t["category"].lower() == category.lower()]
     total = sum(t["amount"] for t in filtered)
 
     context = {
-        "title": f"Категорія: {category}",
+        "title": f"Category: {category}",
         "transactions": filtered,
         "total": total,
         "project_name": PROJECT_NAME,
@@ -108,7 +110,7 @@ def transactions_by_category(request, category):
 
 def monthly_report(request, month):
     if not 1 <= month <= 12:
-        return HttpResponse("Невірний номер місяця (1-12)", status=404)
+        return HttpResponse("Invalid month number (1-12)", status=404)
 
     month_prefix = f"-{month:02d}-"
     monthly = [t for t in TRANSACTIONS if month_prefix in t["date"]]
@@ -116,8 +118,9 @@ def monthly_report(request, month):
     expense_total = sum(t["amount"] for t in monthly if t["type"] == "expense")
 
     context = {
-        "title": f"Звіт за місяць №{month}",
+        "title": f"Monthly report — month {month}",
         "month": month,
+        "month_range": range(1, 13),
         "transactions": monthly,
         "income_total": income_total,
         "expense_total": expense_total,
@@ -135,8 +138,67 @@ def top_expenses(request):
     )[:5]
 
     context = {
-        "title": "Топ-5 витрат",
+        "title": "Top 5 expenses",
         "transactions": expenses,
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/transactions_list.html", context)
+
+
+def convert_currency(request):
+    currencies = list(EXCHANGE_RATES.keys())
+    amount_raw = request.GET.get("amount", "")
+    from_currency = request.GET.get("from", "UAH")
+    to_currency = request.GET.get("to", "USD")
+    result = None
+    error = None
+
+    if amount_raw:
+        try:
+            amount_value = float(amount_raw)
+            if from_currency not in EXCHANGE_RATES or to_currency not in EXCHANGE_RATES:
+                raise ValueError("unknown currency")
+            amount_in_uah = amount_value * EXCHANGE_RATES[from_currency]
+            result = amount_in_uah / EXCHANGE_RATES[to_currency]
+        except ValueError:
+            error = "Enter a valid number"
+
+    context = {
+        "title": "Currency converter",
+        "currencies": currencies,
+        "rates": EXCHANGE_RATES,
+        "amount": amount_raw,
+        "from_currency": from_currency,
+        "to_currency": to_currency,
+        "result": result,
+        "error": error,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/convert.html", context)
+
+
+def expenses_chart(request):
+    totals = {}
+    for t in TRANSACTIONS:
+        if t["type"] == "expense":
+            totals[t["category"]] = totals.get(t["category"], 0) + t["amount"]
+
+    ranked = sorted(totals.items(), key=lambda item: item[1], reverse=True)
+    max_amount = ranked[0][1] if ranked else 0
+    bar_width = 30
+
+    rows = []
+    for category, amount in ranked:
+        bar_len = round((amount / max_amount) * bar_width) if max_amount else 0
+        rows.append({
+            "category": category,
+            "amount": amount,
+            "bar": "█" * bar_len,
+        })
+
+    context = {
+        "title": "Expenses by category",
+        "rows": rows,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/expenses_chart.html", context)
