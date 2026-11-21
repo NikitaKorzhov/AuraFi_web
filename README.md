@@ -17,22 +17,42 @@ the Django-models lesson, this project will define its own Expense Tracker
 schema (users/categories/transactions/budgets) — the same domain as AuraFi,
 modeled fresh through Django ORM, with its own database.
 
-## Current state — Homework 37 only
+## Current state — Homework 37 + Homework 38 (Рівень 1)
 
-Two static pages, each with its own route, view, and template, with data
-passed in through `render()`:
+Homework 37 added the `core` app (two static pages):
 
 | Route | View | Template |
 |---|---|---|
 | `/` | `core.views.home` | `core/templates/core/home.html` |
 | `/about/` | `core.views.about` | `core/templates/core/about.html` |
 
-Both extend a shared `templates/base.html` (title + simple nav) — not
-required by the homework, but it's the standard Django way to avoid
-repeating the same HTML shell on every page, and sets up the pattern future
-lessons (forms, CRUD, admin) will keep building on.
+Homework 38 (lesson 38, "Маршрутизація та представлення") adds a second app,
+`transactions`, following the homework's own **Project 2: Expense & Budget
+Tracker** track (chosen because it's the closest match to AuraFi's own
+domain) — **Рівень 1 only**, as hardcoded in-memory data, exactly as the
+homework spec prescribes at this level:
 
-No models, no database work, no auth yet — that starts at lesson 40.
+| Route | View | Template |
+|---|---|---|
+| `/app/` | `transactions.views.home` | `transactions/templates/transactions/home.html` |
+| `/app/transactions/` | `transactions.views.transactions_list` | `transactions/templates/transactions/transactions_list.html` |
+| `/app/transactions/<int:transaction_id>/` | `transactions.views.transaction_detail` | `transactions/templates/transactions/transaction_detail.html` |
+| `/app/income/` | `transactions.views.income_list` | `transactions/templates/transactions/transactions_list.html` |
+| `/app/expenses/` | `transactions.views.expense_list` | `transactions/templates/transactions/transactions_list.html` |
+| `/app/budgets/` | `transactions.views.budgets_list` | `transactions/templates/transactions/budgets_list.html` |
+
+`transactions` is mounted under `/app/` (`aurafi_web/urls.py`) rather than at
+`""`, since `core` already owns the site root from Homework 37 — the
+homework's own routes (`""`, `transactions/`, `income/`, ...) are preserved
+unchanged underneath that prefix. An unknown transaction id
+(`/app/transactions/999/`) returns a real 404, same as the homework spec.
+
+Both apps extend the same shared `templates/base.html`, whose nav now links
+to all three areas (Головна / Про проєкт / Трекер).
+
+No models, no database work, no auth yet — hardcoded data is deliberate at
+this level (Рівень 1); real models start at lesson 40, and Рівень 2/3 of
+Homework 38 (filtering routes, dashboard, etc.) are not yet implemented.
 
 ## Setup
 
@@ -51,18 +71,27 @@ python manage.py runserver
 Then open:
 - http://127.0.0.1:8000/ — home page
 - http://127.0.0.1:8000/about/ — about page
+- http://127.0.0.1:8000/app/ — expense tracker home
+- http://127.0.0.1:8000/app/transactions/ — all transactions
+- http://127.0.0.1:8000/app/income/ — income only
+- http://127.0.0.1:8000/app/expenses/ — expenses only
+- http://127.0.0.1:8000/app/budgets/ — budgets
 
 ## Project layout
 
 ```text
 AuraFi_web/
 ├── aurafi_web/          # Django project package (settings, root urls)
-├── core/                # The one app so far — home/about pages
+├── core/                # Homework 37 — home/about pages
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/core/
+├── transactions/        # Homework 38 (Рівень 1) — expense tracker views
+│   ├── views.py
+│   ├── urls.py
+│   └── templates/transactions/
 ├── templates/
-│   └── base.html        # shared layout both page templates extend
+│   └── base.html        # shared layout all page templates extend
 ├── manage.py
 └── requirements.txt
 ```

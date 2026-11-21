@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if total is not None %}
+        <p>Разом: {{ total }} грн</p>
+    {% endif %}
+
+    {% if transactions %}
+        <table border="1">
+            <tr>
+                <th>Дата</th>
+                <th>Категорія</th>
+                <th>Тип</th>
+                <th>Сума</th>
+                <th>Опис</th>
+                <th>Дія</th>
+            </tr>
+            {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{{ t.category }}</td>
+                    <td>{{ t.type }}</td>
+                    <td>{{ t.amount }} грн</td>
+                    <td>{{ t.description }}</td>
+                    <td><a href="{% url 'transactions:transaction_detail' t.id %}">Переглянути</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Немає транзакцій.</p>
+    {% endif %}
+
+    <p><a href="{% url 'transactions:home' %}">Назад на головну</a></p>
+{% endblock %}

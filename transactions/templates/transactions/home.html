@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Доходи: {{ total_income }} грн</p>
+    <p>Витрати: {{ total_expense }} грн</p>
+    <p><strong>Баланс: {{ balance }} грн</strong></p>
+
+    <nav>
+        <a href="{% url 'transactions:transactions_list' %}">Усі транзакції</a> |
+        <a href="{% url 'transactions:income_list' %}">Доходи</a> |
+        <a href="{% url 'transactions:expense_list' %}">Витрати</a> |
+        <a href="{% url 'transactions:budgets_list' %}">Бюджети</a>
+    </nav>
+{% endblock %}

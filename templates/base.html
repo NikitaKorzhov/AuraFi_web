@@ -13,6 +13,7 @@
     <nav>
         <a href="{% url 'core:home' %}">Головна</a>
         <a href="{% url 'core:about' %}">Про проєкт</a>
+        <a href="{% url 'transactions:home' %}">Трекер</a>
     </nav>
     <h1>{{ title }}</h1>
     {% block content %}{% endblock %}

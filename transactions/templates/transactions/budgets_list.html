@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if budgets %}
+        <ul>
+            {% for budget in budgets %}
+                <li>{{ budget.category }}: {{ budget.monthly_limit }} грн/місяць</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Немає бюджетів.</p>
+    {% endif %}
+
+    <p><a href="{% url 'transactions:home' %}">Назад на головну</a></p>
+{% endblock %}
