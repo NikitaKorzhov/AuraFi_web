@@ -11,9 +11,9 @@
         {% endfor %}
     </p>
 
-    <p>Income: <strong>{{ income_total|intcomma }} UAH</strong></p>
-    <p>Expenses: <strong>{{ expense_total|intcomma }} UAH</strong></p>
-    <p>Balance: <strong>{{ balance|intcomma }} UAH</strong></p>
+    <p>Income: <strong>{{ income_total|floatformat:2|intcomma }} UAH</strong></p>
+    <p>Expenses: <strong>{{ expense_total|floatformat:2|intcomma }} UAH</strong></p>
+    <p>Balance: <strong>{{ balance|floatformat:2|intcomma }} UAH</strong></p>
 
     {% if transactions %}
         <div class="table-wrap">
@@ -30,7 +30,7 @@
                         <td>{{ t.date }}</td>
                         <td>{{ t.category }}</td>
                         <td>{{ t.type }}</td>
-                        <td>{{ t.amount|intcomma }} UAH</td>
+                        <td>{{ t.amount|floatformat:2|intcomma }} UAH</td>
                         <td>{{ t.description }}</td>
                     </tr>
                 {% endfor %}

@@ -17,7 +17,7 @@ the Django-models lesson, this project will define its own Expense Tracker
 schema (users/categories/transactions/budgets) — the same domain as AuraFi,
 modeled fresh through Django ORM, with its own database.
 
-## Current state — Homework 37 + Homework 38 (Рівень 1 + Рівень 2 + Рівень 3)
+## Current state — Homework 37 + Homework 38 (all levels) + Homework 39
 
 Homework 37 added the `core` app (two static pages):
 
@@ -91,6 +91,45 @@ Plus a general UX/usability pass across the whole site (both apps, not just
 No models, no database work, no auth yet — hardcoded data is deliberate at
 this level; real models start at lesson 40.
 
+Homework 39 (lesson 39, "Шаблони та статичні файли") is done on top of the
+same `transactions` app — still **Project 2: Expense & Budget Tracker**, now
+with templates driven by actual CSS/JS static files instead of an inline
+`<style>` block, plus the dashboard/budget features the homework calls for:
+
+- **Static files**: `static/css/style.css` and `static/js/main.js`
+  (project-level `STATICFILES_DIRS`), loaded via `{% load static %}` /
+  `{% static %}` in `templates/base.html`. The one exception is the few
+  lines that pick light/dark theme before first paint — that has to run
+  inline in `<head>` before the stylesheet applies, or the page flashes the
+  wrong theme; everything else (the CSS, the click handler) lives in the
+  static files.
+- **Dashboard** (`/app/`) — reworked into the homework's shape: income /
+  expense / balance cards for the current month, plus a "recent
+  transactions" table (last 5, newest first). The underlying totals and
+  sorting reuse the same filtering AuraFi's console app already does by
+  month, not a new calculation.
+- **Transaction filtering** on `/app/transactions/?type=income|expense` —
+  filter buttons on the same page, alongside the existing dedicated
+  `/app/income/` and `/app/expenses/` routes.
+- **Budgets** (`/app/budgets/`) — now computes real `spent` / `remaining` /
+  `percentage` per category from the transaction list (the same spent/
+  remaining/utilization logic AuraFi's console `Budget` class uses) and
+  renders it as a progress bar, instead of just listing the limit.
+- **Reports overview** (`/app/reports/`, new) — expenses grouped by
+  category plus overall income/expense totals, complementing the existing
+  per-month report and the ASCII chart.
+- Money values use `{{ value|intcomma }}` for thousands separators, dates
+  are shown as-is (`YYYY-MM-DD`) since the mock data has no time component.
+
+Deliberately **not** implemented at this level: Add/Edit/Delete links for
+transactions and budgets (the homework's own template examples link to
+`add-transaction`, `edit-budget`, etc.) — those require real create/update/
+delete views, which is lesson 41 (CRUD). Linking to pages that don't exist
+yet would just be broken links, so they're left out until CRUD lands. Date-
+range filtering, a balance-history line chart, and a budget "days left at
+this rate" forecast (the homework's optional bonus items) are also skipped
+for now.
+
 ## Setup
 
 ```bash
@@ -118,6 +157,8 @@ Then open:
 - http://127.0.0.1:8000/app/top-expenses/ — top 5 expenses
 - http://127.0.0.1:8000/app/convert/?amount=1000&from=UAH&to=USD — currency converter
 - http://127.0.0.1:8000/app/expenses-chart/ — ASCII expenses chart
+- http://127.0.0.1:8000/app/transactions/?type=income — transactions filtered by type
+- http://127.0.0.1:8000/app/reports/ — expenses-by-category overview + totals
 
 ## Project layout
 
@@ -128,13 +169,16 @@ AuraFi_web/
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/core/
-├── transactions/        # Homework 38 (Рівень 1+2+3) — expense tracker views
+├── transactions/        # Homework 38 (all levels) + Homework 39
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/transactions/
 │       └── _subnav.html  # shared sub-nav included on every tracker page
 ├── templates/
 │   └── base.html        # shared layout all page templates extend
+├── static/              # Homework 39 — project-level static files
+│   ├── css/style.css
+│   └── js/main.js
 ├── manage.py
 └── requirements.txt
 ```

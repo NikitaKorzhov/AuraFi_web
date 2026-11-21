@@ -4,6 +4,7 @@
     <a href="{% url 'transactions:income_list' %}" class="{% if request.resolver_match.url_name == 'income_list' %}active{% endif %}">Income</a>
     <a href="{% url 'transactions:expense_list' %}" class="{% if request.resolver_match.url_name == 'expense_list' %}active{% endif %}">Expenses</a>
     <a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match.url_name == 'budgets_list' %}active{% endif %}">Budgets</a>
+    <a href="{% url 'transactions:reports' %}" class="{% if request.resolver_match.url_name == 'reports' %}active{% endif %}">Reports</a>
     <a href="{% url 'transactions:top_expenses' %}" class="{% if request.resolver_match.url_name == 'top_expenses' %}active{% endif %}">Top 5 expenses</a>
     <a href="{% url 'transactions:expenses_chart' %}" class="{% if request.resolver_match.url_name == 'expenses_chart' %}active{% endif %}">Expenses chart</a>
     <a href="{% url 'transactions:convert' %}" class="{% if request.resolver_match.url_name == 'convert' %}active{% endif %}">Currency converter</a>

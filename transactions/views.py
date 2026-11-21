@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.shortcuts import render
 from django.http import HttpResponse
 
@@ -23,25 +25,40 @@ EXCHANGE_RATES = {
 }
 
 
+def _this_months_transactions():
+    month_prefix = f"-{date.today().month:02d}-"
+    return [t for t in TRANSACTIONS if month_prefix in t["date"]]
+
+
 def home(request):
-    total_income = sum(t["amount"] for t in TRANSACTIONS if t["type"] == "income")
-    total_expense = sum(t["amount"] for t in TRANSACTIONS if t["type"] == "expense")
+    this_month = _this_months_transactions()
+    total_income = sum(t["amount"] for t in this_month if t["type"] == "income")
+    total_expense = sum(t["amount"] for t in this_month if t["type"] == "expense")
     balance = total_income - total_expense
 
+    recent_transactions = sorted(TRANSACTIONS, key=lambda t: t["date"], reverse=True)[:5]
+
     context = {
-        "title": "Expense Tracker",
+        "title": "Dashboard",
         "total_income": total_income,
         "total_expense": total_expense,
         "balance": balance,
+        "recent_transactions": recent_transactions,
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/home.html", context)
 
 
 def transactions_list(request):
+    transactions = TRANSACTIONS
+    type_filter = request.GET.get("type")
+    if type_filter in ("income", "expense"):
+        transactions = [t for t in transactions if t["type"] == type_filter]
+
     context = {
         "title": "Transactions",
-        "transactions": TRANSACTIONS,
+        "transactions": transactions,
+        "type_filter": type_filter,
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/transactions_list.html", context)
@@ -87,9 +104,26 @@ def expense_list(request):
 
 
 def budgets_list(request):
+    budgets_with_stats = []
+    for b in BUDGETS:
+        spent = sum(
+            t["amount"] for t in TRANSACTIONS
+            if t["type"] == "expense" and t["category"].lower() == b["category"].lower()
+        )
+        limit = b["monthly_limit"]
+        percentage = round(min(spent / limit * 100, 100), 1) if limit else 0
+        budgets_with_stats.append({
+            "category": b["category"],
+            "limit": limit,
+            "spent": spent,
+            "remaining": limit - spent,
+            "percentage": percentage,
+            "over_limit": spent > limit,
+        })
+
     context = {
         "title": "Budgets",
-        "budgets": BUDGETS,
+        "budgets": budgets_with_stats,
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/budgets_list.html", context)
@@ -128,6 +162,26 @@ def monthly_report(request, month):
         "project_name": PROJECT_NAME,
     }
     return render(request, "transactions/report.html", context)
+
+
+def reports_overview(request):
+    expense_totals = {}
+    for t in TRANSACTIONS:
+        if t["type"] == "expense":
+            expense_totals[t["category"]] = expense_totals.get(t["category"], 0) + t["amount"]
+
+    category_rows = sorted(expense_totals.items(), key=lambda item: item[1], reverse=True)
+    total_income = sum(t["amount"] for t in TRANSACTIONS if t["type"] == "income")
+    total_expense = sum(expense_totals.values())
+
+    context = {
+        "title": "Reports",
+        "category_rows": category_rows,
+        "total_income": total_income,
+        "total_expense": total_expense,
+        "project_name": PROJECT_NAME,
+    }
+    return render(request, "transactions/reports.html", context)
 
 
 def top_expenses(request):

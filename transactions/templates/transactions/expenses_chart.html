@@ -10,7 +10,7 @@
                 <div class="chart-row">
                     <span class="chart-label">{{ row.category }}</span>
                     <pre class="chart-bar">{{ row.bar }}</pre>
-                    <span class="chart-amount">{{ row.amount|intcomma }} UAH</span>
+                    <span class="chart-amount">{{ row.amount|floatformat:2|intcomma }} UAH</span>
                 </div>
             {% endfor %}
         </div>

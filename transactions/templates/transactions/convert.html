@@ -31,7 +31,7 @@
     {% if error %}
         <p class="error">{{ error }}</p>
     {% elif result is not None %}
-        <p class="result"><strong>{{ amount }} {{ from_currency }} = {{ result|floatformat:2|intcomma }} {{ to_currency }}</strong></p>
+        <p class="result"><strong>{{ amount|floatformat:2 }} {{ from_currency }} = {{ result|floatformat:2|intcomma }} {{ to_currency }}</strong></p>
     {% endif %}
 
     <p class="muted">Exchange rates (base: UAH, fixed):

@@ -4,8 +4,16 @@
 {% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
 
 {% block content %}
+    {% if request.resolver_match.url_name == "transactions_list" %}
+        <div class="filters">
+            <a href="{% url 'transactions:transactions_list' %}" class="filter-btn {% if not type_filter %}active{% endif %}">All</a>
+            <a href="?type=income" class="filter-btn {% if type_filter == 'income' %}active{% endif %}">Income</a>
+            <a href="?type=expense" class="filter-btn {% if type_filter == 'expense' %}active{% endif %}">Expense</a>
+        </div>
+    {% endif %}
+
     {% if total is not None %}
-        <p>Total: <strong>{{ total|intcomma }} UAH</strong></p>
+        <p>Total: <strong>{{ total|floatformat:2|intcomma }} UAH</strong></p>
     {% endif %}
 
     {% if transactions %}
@@ -23,8 +31,8 @@
                     <tr>
                         <td>{{ t.date }}</td>
                         <td>{{ t.category }}</td>
-                        <td>{{ t.type }}</td>
-                        <td>{{ t.amount|intcomma }} UAH</td>
+                        <td class="type-{{ t.type }}">{{ t.type }}</td>
+                        <td>{{ t.amount|floatformat:2|intcomma }} UAH</td>
                         <td>{{ t.description }}</td>
                         <td><a href="{% url 'transactions:transaction_detail' t.id %}">View</a></td>
                     </tr>

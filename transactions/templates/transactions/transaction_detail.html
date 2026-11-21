@@ -8,6 +8,6 @@
     <p><strong>Date:</strong> {{ transaction.date }}</p>
     <p><strong>Category:</strong> {{ transaction.category }}</p>
     <p><strong>Type:</strong> {{ transaction.type }}</p>
-    <p><strong>Amount:</strong> {{ transaction.amount|intcomma }} UAH</p>
+    <p><strong>Amount:</strong> {{ transaction.amount|floatformat:2|intcomma }} UAH</p>
     <p><strong>Description:</strong> {{ transaction.description }}</p>
 {% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
+
+{% block content %}
+    <p>Total income: <strong>{{ total_income|floatformat:2|intcomma }} UAH</strong></p>
+    <p>Total expenses: <strong>{{ total_expense|floatformat:2|intcomma }} UAH</strong></p>
+
+    <h2>Expenses by category</h2>
+    {% if category_rows %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+                {% for category, amount in category_rows %}
+                    <tr>
+                        <td><a href="{% url 'transactions:transactions_by_category' category %}">{{ category }}</a></td>
+                        <td>{{ amount|floatformat:2|intcomma }} UAH</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No expenses to report.</p>
+    {% endif %}
+
+    <p class="muted">See the <a href="{% url 'transactions:expenses_chart' %}">visual breakdown</a> or a <a href="{% url 'transactions:monthly_report' 11 %}">month-by-month report</a>.</p>
+{% endblock %}

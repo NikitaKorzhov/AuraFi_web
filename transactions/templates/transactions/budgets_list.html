@@ -5,22 +5,21 @@
 
 {% block content %}
     {% if budgets %}
-        <div class="table-wrap">
-            <table>
-                <tr>
-                    <th>Category</th>
-                    <th>Monthly limit</th>
-                    <th>Action</th>
-                </tr>
-                {% for budget in budgets %}
-                    <tr>
-                        <td>{{ budget.category }}</td>
-                        <td>{{ budget.monthly_limit|intcomma }} UAH</td>
-                        <td><a href="{% url 'transactions:transactions_by_category' budget.category %}">Transactions</a></td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
+        {% for budget in budgets %}
+            <div class="budget-card">
+                <h3>{{ budget.category }}</h3>
+                <div class="budget-stats">
+                    <span>Limit: {{ budget.limit|floatformat:2|intcomma }} UAH</span>
+                    <span>Spent: {{ budget.spent|floatformat:2|intcomma }} UAH</span>
+                    <span>Remaining: {{ budget.remaining|floatformat:2|intcomma }} UAH</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill{% if budget.over_limit %} over-limit{% endif %}" style="width: {{ budget.percentage }}%"></div>
+                </div>
+                <p class="muted" style="margin: 0.4rem 0 0.75rem;">{{ budget.percentage }}% used</p>
+                <a href="{% url 'transactions:transactions_by_category' budget.category %}">View transactions</a>
+            </div>
+        {% endfor %}
     {% else %}
         <p class="muted">No budgets set.</p>
     {% endif %}
