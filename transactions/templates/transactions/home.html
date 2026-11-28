@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
+
+{% block content %}
+    <p class="muted">This month</p>
+    <div class="summary-grid">
+        <div class="summary-card income">
+            <h3>Income</h3>
+            <p class="amount">{{ total_income|floatformat:2|intcomma }} UAH</p>
+        </div>
+        <div class="summary-card expense">
+            <h3>Expenses</h3>
+            <p class="amount">{{ total_expense|floatformat:2|intcomma }} UAH</p>
+        </div>
+        <div class="summary-card balance{% if balance < 0 %} negative{% endif %}">
+            <h3>Balance</h3>
+            <p class="amount">{{ balance|floatformat:2|intcomma }} UAH</p>
+        </div>
+    </div>
+
+    <h2>Recent transactions</h2>
+    {% if recent_transactions %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+                {% for t in recent_transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.category }}</td>
+                        <td class="type-{{ t.type }}">{{ t.type }}</td>
+                        <td>{{ t.amount|floatformat:2|intcomma }} UAH</td>
+                        <td><a href="{% url 'transactions:transaction_detail' t.id %}">Details</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No transactions yet.</p>
+    {% endif %}
+{% endblock %}

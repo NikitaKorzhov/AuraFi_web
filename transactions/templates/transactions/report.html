@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block subnav %}{% include "transactions/_subnav.html" %}{% endblock %}
+
+{% block content %}
+    <p class="muted">
+        Month:
+        {% for m in month_range %}
+            <a href="{% url 'transactions:monthly_report' m %}"{% if m == month %} class="active"{% endif %}>{{ m }}</a>{% if not forloop.last %} ·{% endif %}
+        {% endfor %}
+    </p>
+
+    <p>Income: <strong>{{ income_total|floatformat:2|intcomma }} UAH</strong></p>
+    <p>Expenses: <strong>{{ expense_total|floatformat:2|intcomma }} UAH</strong></p>
+    <p>Balance: <strong>{{ balance|floatformat:2|intcomma }} UAH</strong></p>
+
+    {% if transactions %}
+        <div class="table-wrap">
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                </tr>
+                {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.type }}</td>
+                        <td>{{ t.amount|floatformat:2|intcomma }} UAH</td>
+                        <td>{{ t.description }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No transactions for this month.</p>
+    {% endif %}
+{% endblock %}
