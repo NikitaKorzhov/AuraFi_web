@@ -17,7 +17,7 @@ the Django-models lesson, this project will define its own Expense Tracker
 schema (users/categories/transactions/budgets) — the same domain as AuraFi,
 modeled fresh through Django ORM, with its own database.
 
-## Current state — Homework 37 + Homework 38 (all levels) + Homework 39
+## Current state — Homework 37 + Homework 38 (all levels) + Homework 39 + Homework 40
 
 Homework 37 added the `core` app (two static pages):
 
@@ -26,10 +26,10 @@ Homework 37 added the `core` app (two static pages):
 | `/` | `core.views.home` | `core/templates/core/home.html` |
 | `/about/` | `core.views.about` | `core/templates/core/about.html` |
 
-Homework 38 (lesson 38, "Маршрутизація та представлення") adds a second app,
+Homework 38 (lesson 38, "Routing and views") adds a second app,
 `transactions`, following the homework's own **Project 2: Expense & Budget
 Tracker** track (chosen because it's the closest match to AuraFi's own
-domain) — **Рівень 1 only**, as hardcoded in-memory data, exactly as the
+domain) — **Level 1 only**, as hardcoded in-memory data, exactly as the
 homework spec prescribes at this level:
 
 | Route | View | Template |
@@ -48,9 +48,9 @@ unchanged underneath that prefix. An unknown transaction id
 (`/app/transactions/999/`) returns a real 404, same as the homework spec.
 
 Both apps extend the same shared `templates/base.html`, whose nav now links
-to all three areas (Головна / Про проєкт / Трекер).
+to all three areas (Home / About / Tracker).
 
-Рівень 2 (просунутий) adds 3 more routes, all with typed dynamic parameters
+Level 2 (advanced) adds 3 more routes, all with typed dynamic parameters
 and real 404 handling:
 
 | Route | View | Template | Notes |
@@ -63,7 +63,7 @@ The budgets page links each category straight into its filtered transaction
 list, and the tracker home page links to the top-expenses and a November
 monthly report.
 
-Рівень 3 (бонус) adds:
+Level 3 (bonus) adds:
 
 | Route | View | Template | Notes |
 |---|---|---|---|
@@ -91,7 +91,7 @@ Plus a general UX/usability pass across the whole site (both apps, not just
 No models, no database work, no auth yet — hardcoded data is deliberate at
 this level; real models start at lesson 40.
 
-Homework 39 (lesson 39, "Шаблони та статичні файли") is done on top of the
+Homework 39 (lesson 39, "Templates and static files") is done on top of the
 same `transactions` app — still **Project 2: Expense & Budget Tracker**, now
 with templates driven by actual CSS/JS static files instead of an inline
 `<style>` block, plus the dashboard/budget features the homework calls for:
@@ -130,6 +130,49 @@ range filtering, a balance-history line chart, and a budget "days left at
 this rate" forecast (the homework's optional bonus items) are also skipped
 for now.
 
+Homework 40 (lesson 40, "Models, migrations, and the Django ORM") replaces
+the hardcoded `TRANSACTIONS` / `BUDGETS` lists in `transactions/views.py`
+with real Django models — still **Project 2: Expense & Budget Tracker**,
+both the base and bonus levels done:
+
+- **`Category`** — `name`, `description`, `icon`, `created_at`. A shared
+  catalog, not scoped to any one user (mirrors AuraFi's console-app
+  `categories` table).
+- **`Transaction`** — `user` (FK → `User`, `CASCADE`), `category` (FK →
+  `Category`, `SET_NULL` so a deleted category doesn't take its history
+  with it), `amount` (`DecimalField`, never `FloatField`, for money),
+  `transaction_type` (`income`/`expense` choices), `date`, `description`,
+  `created_at`. Indexed on `(user, -date)` and `transaction_type` for the
+  filtering the views already do. `clean()` rejects a non-positive amount
+  or an expense over 100,000 ₴, enforced on every `save()`.
+- **`Budget`** — `user`, `category` (FK → `Category`, `CASCADE`), `month`/
+  `year` (plain integers, not a `DateField`, since a budget is always a
+  whole calendar month), `limit`. `unique_together` on
+  `(user, category, month, year)` — one budget per category per month.
+  `get_spent()` / `get_remaining()` / `is_exceeded()` do the same
+  spent/remaining/utilization math the console app's `Budget` class and
+  Homework 39's view code already did, now living on the model instead of
+  being recomputed in the view.
+- **`Account`** (bonus level) — a wallet/bank account per user
+  (`name`, `balance`, `currency`), not wired into any view yet.
+- **Statistics classmethods** (bonus level) — `Transaction.get_monthly_stats(user, month, year)`,
+  `Transaction.get_by_category(user)`, and `Transaction.get_expense_stats(user)`
+  (average expense, top-spend category, income/expense counts), all built on
+  `.aggregate()` / `.annotate()` rather than looping in Python.
+- All four models registered in `transactions/admin.py` with
+  `list_display`, `search_fields`, `list_filter`, and (for `Transaction`)
+  `date_hierarchy` — `CategoryAdmin` shows a live `transaction_count()`,
+  `BudgetAdmin` a live `spent()`, both computed via the model, not stored.
+- Migrations: `transactions/migrations/0001_initial.py`.
+
+The existing `transactions/views.py` is **not** touched in this homework —
+it still reads from the in-memory `TRANSACTIONS`/`BUDGETS` lists, since
+wiring the views to the ORM (`Model.objects.filter(...)` instead of list
+comprehensions) is a CRUD change that belongs to lesson 41, not lesson 40's
+"just the models" scope. The admin site (`/admin/`) is the only place the
+new models are reachable right now; create a superuser
+(`python manage.py createsuperuser`) to use it.
+
 ## Setup
 
 ```bash
@@ -141,10 +184,13 @@ pip install -r requirements.txt
 ## Run
 
 ```bash
+python manage.py migrate
+python manage.py createsuperuser   # once, to use /admin/
 python manage.py runserver
 ```
 
 Then open:
+- http://127.0.0.1:8000/admin/ — admin site (manage Categories, Transactions, Budgets, Accounts)
 - http://127.0.0.1:8000/ — home page
 - http://127.0.0.1:8000/about/ — about page
 - http://127.0.0.1:8000/app/ — expense tracker home
@@ -169,7 +215,10 @@ AuraFi_web/
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/core/
-├── transactions/        # Homework 38 (all levels) + Homework 39
+├── transactions/        # Homework 38 (all levels) + Homework 39 + Homework 40
+│   ├── models.py        # Homework 40 — Category, Transaction, Budget, Account
+│   ├── admin.py         # Homework 40 — all four models registered
+│   ├── migrations/
 │   ├── views.py
 │   ├── urls.py
 │   └── templates/transactions/
